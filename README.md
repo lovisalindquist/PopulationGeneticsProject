@@ -3,28 +3,48 @@
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-02-29
+Date: 2024-03-05
 
 # Project Description: 
+In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots, both at an individual-individual level, and at a group-group level. 
 
 The input file is a tsv-table, with the following columns:
 
-    Start: start position of segment
-    End: end position of segment
-    StartM: Morgans at start of segment
-    EndM: Morgans at end of segment
-    length: End - Start, length of segment
-    lengthM: total length in Morgans
+    Start: start position of segment (bp)
+    End: end position of segment (bp)
+    StartM: Morgans at start of segment (M)
+    EndM: Morgans at end of segment (M)
+    length: End - Start, length of segment (bp)
+    lengthM: total length in Morgans (bp)
     ch: Chromosome
     iid1: ID of individual 1
     iid2: ID of individual 2
     SNPdens: Density of SNPs, calculated by the total length / centiMorgans
+An additional file containing the IDs and their associated geographic origin will be used for the parsing:
 
-    1. Transform data using Python
-    2. Generate circos plot in R
-    3. Develop application using R Shiny
+The procedure involves the following steps:
+    1. Data transformation using Python
+        1.1 Read input files and identify column indices of headers
+        1.2 Generate dictionaries connecting IDs to information and origin, respectively.
+        1.3 Write to output using dictionaries.
 
-Input file:
+    2. Generation of circos plot function in R
+        2.1 Import packages and data
+        2.2 Generate subdataframes depending on individuals/groups of interest
+        2.3 Create matrix for plotting from subdataframe 
+        2.4 Generate plot using circlize::chordDiagram
+
+    3. Development of application using R Shiny
+        3.1 Define user interface function
+            3.1.1 Generate side panel
+            3.1.2 Generate main panel
+        3.2 Define server function
+            3.2.1 Identify and update interactive options
+            3.2.2 Plot chordDiagram using function described above
+            3.2.3 Generate summary statistics table
+            3.2.4 Generate detailed statistics table as drop down from summary table
+
+# Input files
 The data used to produce the application can be downloaded at:
 https://zenodo.org/records/8417049 
 
@@ -32,15 +52,14 @@ Group reference file downloaded at:
 https://reich.hms.harvard.edu/allen-ancient-dna-resource-aadr-downloadable-genotypes-present-day-and-ancient-dna-data
 
 # File tree
-IBD_Application/
+IBD_Project/
     REAMDE.md
     Data/  
         ibd220.ibd.v54.1.pub.tsv.zip
     Src/
-        IBD_Transform.py
-        IBD_Circos_App.R
+        Transform_IBD_File.py
+        Circos_Plotter_App.R
     Results/
-
 
 # Required software:
 
@@ -50,13 +69,13 @@ conda install python=3.11.5
 
 R v4.2.0
 Installation:
-
+conda install -c r=4.2.0
 Packages:
-
-
-Installation:
-
-Installation:
+- circlize v0.4.16
+- shiny v1.8.0
+- tibble v3.1.7
+- DT v0.32
+- reactable v0.4.4
 
 ###########################################################################################
 
@@ -70,13 +89,16 @@ It specifically looks for the header names:
     'iid1' - represnting the first individual in the comparison
     'iid2' - representing teh second individual in the comparison
     'ch' - representing the chromosome
-    'start' - representing start posiiton of the segment on the given chromosome.
-    'end' - representing start end of the segment on the given chromosome.
-    'SNP_Dens' - represnting the SNP density, calculated by the Morgans per unit segment length. 
+    'lengthM' - representing the Morgans for the given segment and comparison
 
 If these column names are not present in the input file, the script terminates with an error message. 
 To solve this, either change the column names accordingly, modify the python scirpt to search for the column names specified in the file. 
 
+In IBD_Project/Data/:
+`python ../Src/Transform_IBD_File.py ancient_short_data.tsv v54.1.p1_1240K_public.ind TransformedData.tsv`
+
+The output is stored in TransformedData.tsv
 
 # 2. Generate circos plot in R
-
+In IBD_Project/Src/:
+`Rscript Circos_Plotter_App` 
