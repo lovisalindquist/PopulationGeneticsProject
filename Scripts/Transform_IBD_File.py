@@ -47,15 +47,17 @@ try:
             id1 = index # save column index of ID1
         if header == "iid2":
             id2 = index # save column index of ID2
-        #if header == "SNP_Dens\n":
-           # snp_d = index
         if header == "ch":
             ch = index
         if header == "lengthM":
             distM = index
+        if header == "Start":
+            start = index
+        if header == "End":
+            end = index
                         
     # terminate program if columns could not be extracted
-    if id1 is not None and id2 is not None and distM is not None and ch is not None:
+    if id1 is not None and id2 is not None and distM is not None and ch is not None and start is not None and end is not None:
         pass
     else: 
         print("Columns could not be extracted. Make sure that the following header names exist: 'iid1', 'iid2', 'SNP_Dens', 'ch', 'Start', 'End'")
@@ -89,22 +91,22 @@ try:
         for i in range(1, len(lines)): # iterate through all lines in  input file
             split_lines = lines[i].split("\t") # split files by tab
             if split_lines[id1] == ind: # if the first id matches the key
-                ind_list.extend([split_lines[id1], dct_group.get(ind)[0], split_lines[id2], dct_group.get(split_lines[id2])[0], split_lines[ch], split_lines[distM], "\n"]) #add all necessary information to the key      
+                ind_list.extend([split_lines[id1], dct_group.get(ind)[0], split_lines[id2], dct_group.get(split_lines[id2])[0], split_lines[ch], split_lines[start], split_lines[end], split_lines[distM], "\n"]) #add all necessary information to the key      
                 count += 1                            
             elif split_lines[id2] == ind: # if the second id matches the key
-                ind_list.extend([split_lines[id2], dct_group.get(ind)[0], split_lines[id1], dct_group.get(split_lines[id2])[0], split_lines[ch], split_lines[distM], "\n"])  #add all necessary information to the key    
+                ind_list.extend([split_lines[id2], dct_group.get(ind)[0], split_lines[id1], dct_group.get(split_lines[id2])[0], split_lines[ch], split_lines[start], split_lines[end], split_lines[distM], "\n"])  #add all necessary information to the key    
                 count += 1
             else: pass  
                                     
                                     
     # write to output file from dictionary
-    outfile.write("ID1\tID1_Group\tID2\tID2_Group\tChr\tSegmentLengthM\n") # create header line
+    outfile.write("ID1\tID1_Group\tID2\tID2_Group\tChr\tStart\tEnd\tSegmentLengthM\n") # create header line
     for ind, ind_list in dct.items(): #iterate through dictionary
         i=0 # start at first individual
         while i < len(ind_list): # as long as assitional information remains
-            outfile.write("\t".join(ind_list[i:i+7])) #write lines to output file
+            outfile.write("\t".join(ind_list[i:i+9])) #write lines to output file
             
-            i=i+7 # continue to the next line
+            i=i+9 # continue to the next line
            
     print("Output stored in ", sys.argv[3], "\nSummary:\nNumber of individuals: ", len(individuals), "\nAverage pairwise comparisons per individual: ", round(count/len(individuals), ndigits=1))
  
