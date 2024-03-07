@@ -23,6 +23,7 @@ The input file is a tsv-table, with the following columns:
 An additional file containing the IDs and their associated geographic origin will be used for the parsing:
 
 The procedure involves the following steps:
+
     1. Data transformation using Python
         1.1 Read input files and identify column indices of headers
         1.2 Generate dictionaries connecting IDs to information and origin, respectively.
@@ -47,19 +48,25 @@ The procedure involves the following steps:
 # Input files
 The data used to produce the application can be downloaded at:
 https://zenodo.org/records/8417049 
+or
+https://github.com/lovisalindquist/PopulationGeneticsProject.git
 
 Group reference file downloaded at:
 https://reich.hms.harvard.edu/allen-ancient-dna-resource-aadr-downloadable-genotypes-present-day-and-ancient-dna-data
+or 
+https://github.com/lovisalindquist/PopulationGeneticsProject.git
 
 # File tree
-IBD_Project/
-    REAMDE.md
-    Data/  
-        ibd220.ibd.v54.1.pub.tsv.zip
-    Src/
-        Transform_IBD_File.py
-        Circos_Plotter_App.R
-    Results/
+
+    IBD_Project/
+        README.md
+        Data/  
+            ibd220.ibd.v54.1.pub.tsv
+            AADR_Annotation.xlsx
+        Scripts/
+            Transform_IBD_File.py
+            CircosPlotter.R
+    
 
 # Required software:
 
@@ -74,31 +81,35 @@ Packages:
 - circlize v0.4.16
 - shiny v1.8.0
 - tibble v3.1.7
-- DT v0.32
 - reactable v0.4.4
-
-###########################################################################################
 
 
 # 1. Transform dataset using Python
 
-In order to facilitate the downstream analysis in R, the input data file is transformed using the python script IBD_transform.py. 
-The script takes one input file, and requires a specified output file. 
+In order to facilitate the downstream analysis in R, and to include data on demographic origin, the input data file is transformed using the python script IBD_transform.py. The script takes two input files, and requires a specified output file. 
 
-It specifically looks for the header names:
+It specifically looks for the header names in teh first input file:
     'iid1' - represnting the first individual in the comparison
     'iid2' - representing teh second individual in the comparison
     'ch' - representing the chromosome
     'lengthM' - representing the Morgans for the given segment and comparison
+    'Start' - representing start position of segment (bp)
+    'End' - representing end position of segment (bp)
 
-If these column names are not present in the input file, the script terminates with an error message. 
+If these column names are not present in thefile, the script terminates with an error message. 
 To solve this, either change the column names accordingly, modify the python scirpt to search for the column names specified in the file. 
 
-In IBD_Project/Data/:
-`python ../Src/Transform_IBD_File.py ancient_short_data.tsv v54.1.p1_1240K_public.ind TransformedData.tsv`
+The data is parsed with data on the demographic origin, named AADR_Annotation.xlsx
+The file contains cryptic columns that interfere with data extraction by column names or indices, thus,
+created a new file with only the two columns of relevance: "Genetic ID" and "Political entity", saved as a .csv file named "AADR_Short.csv"
 
-The output is stored in TransformedData.tsv
+In IBD_Project/Data/:
+`python ../Scripts/Transform_IBD_File.py ibd220.ibd.v54.1.pub.tsv AADR_Short.csv Parsed_Ancient_data.tsv`
+
+The output is stored in Parsed_Ancient_data.tsv
 
 # 2. Generate circos plot in R
-In IBD_Project/Src/:
-`Rscript Circos_Plotter_App` 
+In IBD_Project/Scripts/:
+`Rscript CircosPlotter.R` 
+
+Copy and Paste the resulting link into a web browser. 
