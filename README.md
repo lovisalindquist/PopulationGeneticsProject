@@ -3,12 +3,12 @@
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-03-05
+Date: 2024-03-07
 
 # Project Description: 
-In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots, both at an individual-individual level, and at a group-group level. 
+In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots, both at an individual-individual level, population-population level, and individual-population level. 
 
-The input file is a tsv-table, with the following columns:
+The input file is a tab separated table, with the following columns:
 
     Start: start position of segment (bp)
     End: end position of segment (bp)
@@ -66,7 +66,6 @@ https://github.com/lovisalindquist/PopulationGeneticsProject.git
         Scripts/
             Transform_IBD_File.py
             CircosPlotter.R
-    
 
 # Required software:
 
