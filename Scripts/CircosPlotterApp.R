@@ -11,67 +11,72 @@ library(reactable)
 #read input data
 data <- read.csv("Parsed_Ancient_Data.tsv", sep = "\t", header=F)
 colnames(data) <- data[1,] #remove header
-dat <- data[c(2:1905311),c(1:10)] #remove additional column
+dat <- data[c(2:length(data[,1])),c(1:10)] #remove additional column
 dat$cM <- as.numeric(dat$SegmentLengthM)*100 #create new column for centiMorgan based on column with Morgan
-short_dat <- dat[(1:192),]
-circos_plotter_1(short_dat, "R10760.SG", "Individual-Individual")
-circos_plotter_1 <- function(input_data, selection, level) {
-  
+
+#define a function that plots all connections and highlights the selected ones
+circos_plotter_all <- function(input_data, selection, level) {
+  #define variables to hold information of interest
   ID1 <-c()
   ID2 <-c()
   cM <- c()
   color <- c()
-  
+  #if at individual level, shorten the data set to reduce computational burden, ideally the entire data set should be used
   if (level == "Individual-Individual") {
-    unique_id1 <- unique(input_data$ID1)
-    unique_id2 <- unique(input_data$ID2)
-
+    short_data <- input_data[(1:100),]
+    #identify all unique individuals in the data
+    unique_id1 <- unique(short_data$ID1) 
+    unique_id2 <- unique(short_data$ID2)
+    # go through all individuals and generate a temporary dataset for each unique comparison
     for (id1 in unique_id1) {
-      subdata <- input_data[input_data$ID1 == id1,]
+      subdata <- short_data[short_data$ID1 == id1,]
       for (id2 in unique_id2) {
         subsubdata <- subdata[subdata$ID2 == id2,]
-        if (length(subsubdata$ID1) > 0)
+        if (length(subsubdata$ID1) > 0) #if there is data, extract the necessary details and assign a colour.
           ID1 <- rbind(ID1, id1)
           ID2 <- rbind(ID2, id2)
           cM <- rbind(cM, sum(subsubdata$cM))
-          color <- rbind(color, ifelse(id1 %in% selection, yes = rainbow(10000)[sample(1:10000, 1, replace = T)], no = "grey"))
+          color <- rbind(color, ifelse(id1 %in% selection, yes = rainbow(500)[which(selection == id1)*50], no = ifelse(id2 %in% selection, yes = rainbow(500)[which(selection == id2)*50], no = "grey")))
+          
         }
       }
-    }
+  }
+  # if the comparison is at population level, go through all populations and generate a temporary data table
     else if (level == "Population-Population") {
+      input_data <- input_data[1:"1000",]
     unique_id1 <- unique(input_data$ID1_Group)
     unique_id2 <- unique(input_data$ID2_Group)
     for (id1 in unique_id1) {
       subdata <- input_data[input_data$ID1_Group == id1,]
       for (id2 in unique_id2) {
         subsubdata <- subdata[subdata$ID2_Group == id2,]
+        #if there is information, extract it and assign a color to all selected, one color per selected population
         if (length(subsubdata$ID1) > 0) {
           ID1 <- rbind(ID1, id1)
           ID2 <- rbind(ID2, id2)
           cM <- rbind(cM, sum(subsubdata$cM))
-          color <- rbind(color, ifelse(id1 %in% selection, yes = rainbow(10000)[sample(1:10000, 1, replace = T)], no = "grey"))
-          
+          color <- rbind(color, ifelse(id1 %in% selection, yes = rainbow(500)[which(selection == id1)*50], no = ifelse(id2 %in% selection, yes = rainbow(500)[which(selection == id2)*50], no = "grey")))
         }
       }
     }
   }
 
-
+  # summarise the extracted data in a new data table
   finaldata <- tibble(
     ID1 = ID1,
     ID2 = ID2,
     cM = cM,
     color = color
   )
+  
   circos.clear() #make sure old graphs are cleared
-  circos.par(gap.degree = 0.08)
   # call chord diagram function, all grids specified as grey, colors based on previously generated matrix
   chordDiagram(finaldata, grid.col="grey", preAllocateTracks = 0.5, symmetric = F, col = finaldata$color) 
   
 }
 
-# define a function that takes an input subject (individual/group) and one or more selected comparisons, creates a chord diagram
-circos_plotter_2 <- function(input_data, subject, comparison, level) { 
+# define a function that takes an selected input subject (individual/group) and one or more selected comparisons, creates a chord diagram
+circos_plotter <- function(input_data, subject, comparison, level) { 
   
   finaldata <- data.frame() #holds data following extraction of relevant rows based on subject, comparison
   # the data to be extracted differ depending on the requirements of the final output
@@ -151,21 +156,22 @@ ui <- fluidPage(
   titlePanel("IBD Circos Plotter of ancient individuals and populations"), # create a title of application
   
   sidebarLayout(position = "left",
-                # create widget panel with three different types of options (level, reference and comparison used as input in circos_plotter)
+                # create widget panel with three different types of options (plot type, level, reference and comparison used as input in circos_plotter or circos_plotter_all)
                 sidebarPanel("",
                              width = 3,
-                             selectInput("plot", label = "Plot Type", choices = c("All at once", "Selected to comparison"), selected=""),
+                             
+                             selectInput("plot", label = "Plot Type", choices = c("All at once", "One to many"), selected=""),
                              selectInput("level", label = "Level", choices = c("Individual-Individual", "Population-Population", "Individual-Population"), selectize = TRUE),
-                             selectizeInput("reference", label = "Selected", choices = "", selected = "", options = list(maxOptions = 4104)),
-                             checkboxGroupInput("comparison", label = "Comparison", choices = "", selected = "")),
+                             selectizeInput("reference", label = "Selection 1", choices = "", selected = "", options = list(maxOptions = 4104)),
+                             checkboxGroupInput("comparison", label = "Selection 2", choices = "", selected = "")),
                 
                 # create a main panel with a plot and a table
                 mainPanel("", width = 8,
-                          h4(paste("Welcome to CIRCibd", "\nWelcome")),
+                          h4(paste("Welcome to CIRCibd")),
                           tabsetPanel(id = "tabs",
-                            tabPanel("Info", htmlOutput("info_text")),
-                            tabPanel("Plot1", plotOutput("circos_1", height = "600px")),
-                            tabPanel("Plot2", plotOutput("circos_2", height = "600px"), reactableOutput("summary_data")))
+                            tabPanel("All at once", plotOutput("circos_1", height = "600px")),
+                            tabPanel("One to many", plotOutput("circos_2", height = "600px"), reactableOutput("summary_data")))
+                            
                           
                 )
                 
@@ -176,25 +182,27 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   # define new options in widget based on previous selections
-  observeEvent(input$plot, updateSelectInput(session, "level", "Level", if (input$plot == "All at once") {choices = c("Individual-Individual", "Population-Population")} else if (input$plot == "Selected to comparison") {choices = c("Individual-Individual", "Population-Population", "Individual-Population")}, selected = "Individual-Individual"))
-  observeEvent(c(input$level, input$plot), updateSelectizeInput(session, "reference", "Selected", if (input$plot == "Selected to comparison" & input$level == "Individual-Individual") {choices = sort(unique(dat$ID1))} else if (input$plot == "Selected to comparison" & input$level == "Population-Population") {choices = sort(unique(dat$ID1_Group))} else if (input$level == "Individual-Population") {choices = sort(unique(dat$ID1))} else {choices = c("NA")}, if (input$level == "Population-Population") {selected = sort(unique(dat$ID1_Group))[1]} else {selected = sort(unique(dat$ID1))[1]}))
-  observeEvent(c(input$reference, input$plot), updateCheckboxGroupInput(session, "comparison", "Comparison", if (input$plot == "Selected to comparison" & input$level == "Individual-Individual") {choices = sort(unique(dat$ID2[dat$ID1 == input$reference]))} else if (input$plot == "All at once" & input$level == "Individual-Individual") {choices = sort(unique(dat$ID2))} else if (input$plot == "Selected to comparison" & input$level == "Population-Population") {choices = sort(unique(dat$ID2_Group[dat$ID1_Group == input$reference]))} else if (input$plot == "All at once" & input$level == "Population-Population") {choices = sort(unique(dat$ID2_Group))} else if (input$level == "Individual-Population") {choices = sort(unique(dat$ID2_Group[dat$ID1 == input$reference]))}, if (input$level == "Individual-Individual") {selected = sort(unique(dat$ID2[dat$ID1 == input$reference]))[1]} else if (input$level == "Population-Population") {selected = sort(unique(dat$ID2_Group[dat$ID1_Group == input$reference]))[1]} else if (input$level == "Individual-Population") {sort(unique(dat$ID2_Group[dat$ID1 == input$reference]))[1]}))
-  observeEvent(input$plot, updateTabsetPanel(session, "tabs", if (input$plot == "All at once") {selected = "Plot1"} else if (input$plot == "Selected to comparison") {selected = "Plot2"} else {selected = "Info"}))
+  observeEvent(input$plot, updateSelectInput(session, "level", "Level", if (input$plot == "All at once") {choices = c("Individual-Individual", "Population-Population")} else if (input$plot == "One to many") {choices = c("Individual-Individual", "Population-Population", "Individual-Population")}, selected = "Individual-Individual"))
+  observeEvent(c(input$level, input$plot), updateSelectizeInput(session, "reference", "Selection 1", if (input$plot == "One to many" & input$level == "Individual-Individual") {choices = sort(unique(dat$ID1))} else if (input$plot == "One to many" & input$level == "Population-Population") {choices = sort(unique(dat$ID1_Group))} else if (input$level == "Individual-Population") {choices = sort(unique(dat$ID1))} else {choices = c("NA")}, if (input$plot == "One to many" & input$level == "Population-Population") {selected = sort(unique(dat$ID1_Group))[1]} else if (input$plot == "One to many" & input$level == "Individual-Individual") {selected = sort(unique(dat$ID1))[1]} else {selected = "NA"}))
+  observeEvent(c(input$plot, input$level), updateCheckboxGroupInput(session, "comparison", "Selection 2", if (input$plot == "All at once" & input$level == "Individual-Individual") {choices = sort(unique(dat$ID2))} else if (input$plot == "All at once" & input$level == "Population-Population") {choices = sort(unique(dat$ID2_Group))} else if (input$plot == "One to many" & input$level == "Individual-Individual") {choices = sort(unique(dat$ID2[dat$ID1 == input$reference]))} else if (input$plot == "One to many" & input$level == "Population-Population") {choices = sort(unique(dat$ID2_Group[dat$ID1_Group == input$reference]))} else if (input$plot == "One to many" & input$level == "Individual-Population") {choices = sort(unique(dat$ID2_Group[dat$ID1 == input$reference]))}))
+  observeEvent(input$plot, updateTabsetPanel(session, "tabs", if (input$plot == "All at once") {selected = "All at once"} else if (input$plot == "One to many") {selected = "One to many"} else {selected = "All at once"}))
   
-  
+  # identify which type of plot should be used based on plot type and level
   observeEvent(c(input$plot, input$level),
-               if (input$plot == "All at once") {
+               if (input$plot == "All at once") { #if all at once should be compared
                  output$circos_1 <- renderPlot({
                    validate(
-                    need(input$comparison, "Select at least one subject for comparison.")
+                    need(input$comparison, "")
                    ) 
-                    ifelse(input$level == "Individual-Individual", yes = circos_plotter_1(short_dat, c(input$comparison), input$level), no = circos_plotter_1(dat, c(input$comparison), input$level))
+                    # run circos_plotter_all with the corresponding level parameter
+                    ifelse(input$level == "Individual-Individual", yes = circos_plotter_all(short_dat, c(input$comparison), input$level), no = circos_plotter_all(dat, c(input$comparison), input$level))
                    })
-               } else if (input$plot == "Selected to comparison") {
+               } else if (input$plot == "One to many") { #if one individual should be compared to others
                  output$circos_2 <- renderPlot({
                    validate(
-                     need(input$comparison, "Select at least one subject for comparison."))
-                   circos_plotter_2(dat, input$reference, c(input$comparison), input$level)})
+                     need(input$comparison, ""))
+                   #run circos_plotter with the corresponding level and comparison parameters
+                   circos_plotter(dat, input$reference, c(input$comparison), input$level)}) 
                  
                  # generate a summary table from data
                  output$summary_data <- renderReactable({
