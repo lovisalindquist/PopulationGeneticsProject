@@ -3,12 +3,12 @@
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-03-07
+Date: 2024-03-11
 
 # Project Description: 
-In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots, both at an individual-individual level, population-population level, and individual-population level. 
+In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots in several different ways, For example, one can visualise all connections at individual-individual or population-population level, and highlight the connections of interest. Further, one can select an individual or a population, and compare it to one or more individuals or populations, showing both IBD distances and chromosome distribution of these.
 
-The input file is a tab separated table, with the following columns:
+The main input file (ibd220.ibd.v54.1.pub.tsv) is a tab separated table, with the following columns:
 
     Start: start position of segment (bp)
     End: end position of segment (bp)
@@ -20,7 +20,9 @@ The input file is a tab separated table, with the following columns:
     iid1: ID of individual 1
     iid2: ID of individual 2
     SNPdens: Density of SNPs, calculated by the total length / centiMorgans
-An additional file containing the IDs and their associated geographic origin will be used for the parsing:
+
+An additional file (AADR_Annotation.xlsx) containing the IDs and their associated geographic origin will be used for the parsing. The file contains cryptic columns that interfere with data extraction by column names or indices, thus,
+create a new file with only the three columns of relevance: "Genetic ID", "Political entity", and "Age", saved as a .csv file named "AADR_Short.csv"
 
 The procedure involves the following steps:
 
@@ -29,7 +31,7 @@ The procedure involves the following steps:
         1.2 Generate dictionaries connecting IDs to information and origin, respectively.
         1.3 Write to output using dictionaries.
 
-    2. Generation of circos plot function in R
+    2. Generation of circos plot functions in R
         2.1 Import packages and data
         2.2 Generate subdataframes depending on individuals/groups of interest
         2.3 Create matrix for plotting from subdataframe 
@@ -63,9 +65,10 @@ https://github.com/lovisalindquist/PopulationGeneticsProject.git
         Data/  
             ibd220.ibd.v54.1.pub.tsv
             AADR_Annotation.xlsx
+            AADR_Short.csv
         Scripts/
             Transform_IBD_File.py
-            CircosPlotter.R
+            CircosPlotterApp.R
 
 # Required software:
 
@@ -98,17 +101,17 @@ It specifically looks for the header names in teh first input file:
 If these column names are not present in thefile, the script terminates with an error message. 
 To solve this, either change the column names accordingly, modify the python scirpt to search for the column names specified in the file. 
 
-The data is parsed with data on the demographic origin, named AADR_Annotation.xlsx
-The file contains cryptic columns that interfere with data extraction by column names or indices, thus,
-created a new file with only the two columns of relevance: "Genetic ID" and "Political entity", saved as a .csv file named "AADR_Short.csv"
+The data is parsed with the short data on the demographic origin, named AADR_short-csv (see above)
 
 In IBD_Project/Data/:
-`python ../Scripts/Transform_IBD_File.py ibd220.ibd.v54.1.pub.tsv AADR_Short.csv Parsed_Ancient_data.tsv`
+`python ../Scripts/Transform_IBD_File.py ibd220.ibd.v54.1.pub.tsv AADR_short.csv Parsed_Ancient_data.tsv`
 
 The output is stored in Parsed_Ancient_data.tsv
 
 # 2. Generate circos plot in R
 In IBD_Project/Scripts/:
-`Rscript CircosPlotter.R` 
+`Rscript CircosPlotterApp.R` 
 
-Copy and Paste the resulting link into a web browser. 
+Copy and Paste the resulting link into a web browser (unless using RStudio)
+
+
