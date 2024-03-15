@@ -3,7 +3,7 @@
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-03-11
+Date: 2024-03-15
 
 # Project Description: 
 In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots in several different ways, For example, one can visualise all connections at individual-individual or population-population level, and highlight the connections of interest. Further, one can select an individual or a population, and compare it to one or more individuals or populations, showing both IBD distances and chromosome distribution of these.
@@ -62,10 +62,13 @@ https://github.com/lovisalindquist/PopulationGeneticsProject.git
 
     IBD_Project/
         README.md
-        Data/  
-            ibd220.ibd.v54.1.pub.tsv
-            AADR_Annotation.xlsx
-            AADR_Short.csv
+        Data/
+            Input/
+                ibd220.ibd.v54.1.pub.tsv
+                AADR_Annotation.xlsx
+                AADR_Short.csv
+            Output/
+                Parsed_Ancient_data.tsv
         Scripts/
             Transform_IBD_File.py
             CircosPlotterApp.R
@@ -84,6 +87,7 @@ Packages:
 - shiny v1.8.0
 - tibble v3.1.7
 - reactable v0.4.4
+- shinybusy v0.3.3
 
 
 # 1. Transform dataset using Python
@@ -104,9 +108,19 @@ To solve this, either change the column names accordingly, modify the python sci
 The data is parsed with the short data on the demographic origin, named AADR_short-csv (see above)
 
 In IBD_Project/Data/:
-`python ../Scripts/Transform_IBD_File.py ibd220.ibd.v54.1.pub.tsv AADR_short.csv Parsed_Ancient_data.tsv`
+`python ../Scripts/Transform_IBD_File.py Input/ibd220.ibd.v54.1.pub.tsv Input/AADR_Short.csv Output/Parsed_Ancient_data.tsv`
 
 The output is stored in Parsed_Ancient_data.tsv
+
+Calculate summary statistics
+
+In IBD_Project/Data/Output:
+Total number of comparisons: `echo $(cat Parsed_Ancient_Data.tsv | wc -l) / 2 -0.5 | bc -l ` # 952 655
+Number of unique comparisons: `echo $(cat Parsed_Ancient_Data.tsv | cut -f 1,4 | sort -u | wc -l) / 2-0.5 | bc -l ` # 705 555
+Number of individuals: `echo $(cat Parsed_Ancient_Data.tsv | cut -f 1 | sort -u | wc -l) -1 | bc -l ` # 4104
+Average number of comparisons:  `echo 705555/4104 | bc -l ` # 171.9
+Number of individuals with "Unknown" origin: `cat Parsed_Ancient_Data.tsv | cut -f 1,2 | grep "Unknown" | sort -u | wc -l ` # 10
+
 
 # 2. Generate circos plot in R
 In IBD_Project/Scripts/:
