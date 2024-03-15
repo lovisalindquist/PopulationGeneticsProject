@@ -88,16 +88,13 @@ try:
             ind_list.append("Unknown")
             ind_list.append("Unknown")
                
-    count = 0 #count number of lines for summary information printed to standard output.
     for ind, ind_list in dct.items(): # iterate through all IDs
         for i in range(1, len(lines)): # iterate through all lines in input file
             split_lines = lines[i].split("\t") # split files by tab
             if split_lines[id1] == ind: # if the first id matches the key
                 ind_list.extend([split_lines[id1], dct_group.get(split_lines[id1])[0], dct_group.get(split_lines[id1])[1], split_lines[id2], dct_group.get(split_lines[id2])[0], dct_group.get(split_lines[id2])[1], split_lines[ch], split_lines[start], split_lines[end], split_lines[distM], "\n"]) #add all necessary information to the key      
-                count += 1                            
             elif split_lines[id2] == ind: # if the second id matches the key
                 ind_list.extend([split_lines[id2], dct_group.get(split_lines[id2])[0], dct_group.get(split_lines[id2])[1], split_lines[id1], dct_group.get(split_lines[id1])[0], dct_group.get(split_lines[id1])[1], split_lines[ch], split_lines[start], split_lines[end], split_lines[distM], "\n"])  #add all necessary information to the key    
-                count += 1
             else: pass  
                                     
                                     
@@ -110,7 +107,7 @@ try:
             
             i=i+11 # continue to the next line
            
-    print("Output stored in ", "\nSummary:\nNumber of individuals: ", len(individuals), "\nAverage pairwise comparisons per individual: ", round(count/len(individuals), ndigits=1))
+    print("Output stored in ", sys.argv[3])
  
     infile.close()
     ref_file.close()
