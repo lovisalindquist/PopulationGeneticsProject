@@ -10,7 +10,7 @@ The server observes input from the user and updates the seleections and graphs a
 
 
 Author: Lovisa Lindquist
-Date: 2024-03-15
+Date: 2024-03-19
 "
 
 ########################################################################################################################3
@@ -28,16 +28,21 @@ library(reactable)
 library(shinybusy)
 
 #read input data
-data <- read.csv("../Data/Output/Parsed_Ancient_Data.tsv", sep = "\t", header=F)
+data <- read.csv("Data/Output/Parsed_Ancient_Data.tsv", sep = "\t", header=F)
 colnames(data) <- data[1,] #remove header
 dat <- data[c(2:length(data[,1])),c(1:10)] #remove additional column
 dat$cM <- as.numeric(dat$SegmentLengthM)*100 #create new column for centiMorgan based on column with Morgan
-
+#rename misspelled populations
+for (pop in 1:length(dat$ID1_Group)) {
+  if (dat$ID1_Group[pop] == "Gernamy") {dat$ID1_Group[pop] <- "Germany"} 
+  if (dat$ID2_Group[pop] == "Gernamy") {dat$ID2_Group[pop] <- "Germany"} 
+  if (dat$ID1_Group[pop] == "Czechia") {dat$ID1_Group[pop] <- "Czech Republic"} 
+  if (dat$ID2_Group[pop] == "Czechia") {dat$ID2_Group[pop] <- "Czech Republic"} 
+}
 #define a function that prepares data for plotting all connections at once
 
 circos_plotter_all <- function(input_data, selection, level) {
   #define variables to hold information of interest
-  
   ID1 <-c()
   ID2 <-c()
   cM <- c()
@@ -236,8 +241,8 @@ ui <- fluidPage(
                           h4(paste("Welcome to CIRCibd!")),
                           add_loading_state(selector = ".shiny-plot-output", spinner = "circle"),
                           tabsetPanel(id = "tabs",
-                                      tabPanel("All at once", plotOutput("circos_1", height = "800px")),
-                                      tabPanel("One to many", plotOutput("circos_2", height = "800px"), reactableOutput("summary_data")))
+                                      tabPanel("All at once", plotOutput("circos_1", height = "400px")),
+                                      tabPanel("One to many", plotOutput("circos_2", height = "400px"), reactableOutput("summary_data")))
                           
                           
                 )
