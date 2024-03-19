@@ -3,7 +3,7 @@
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-03-15
+Date: 2024-03-16
 
 # Project Description: 
 In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots in several different ways, For example, one can visualise all connections at individual-individual or population-population level, and highlight the connections of interest. Further, one can select an individual or a population, and compare it to one or more individuals or populations, showing both IBD distances and chromosome distribution of these.
@@ -82,6 +82,7 @@ conda install python=3.11.5
 R v4.2.0
 Installation:
 conda install -c r=4.2.0
+
 Packages:
 - circlize v0.4.16
 - shiny v1.8.0
@@ -115,11 +116,12 @@ The output is stored in Parsed_Ancient_data.tsv
 Calculate summary statistics
 
 In IBD_Project/Data/Output:
-Total number of comparisons: `echo $(cat Parsed_Ancient_Data.tsv | wc -l) / 2 -0.5 | bc -l ` # 952 655
-Number of unique comparisons: `echo $(cat Parsed_Ancient_Data.tsv | cut -f 1,4 | sort -u | wc -l) / 2-0.5 | bc -l ` # 705 555
-Number of individuals: `echo $(cat Parsed_Ancient_Data.tsv | cut -f 1 | sort -u | wc -l) -1 | bc -l ` # 4104
-Average number of comparisons:  `echo 705555/4104 | bc -l ` # 171.9
-Number of individuals with "Unknown" origin: `cat Parsed_Ancient_Data.tsv | cut -f 1,2 | grep "Unknown" | sort -u | wc -l ` # 10
+
+- Total number of comparisons: `echo $(cat Parsed_Ancient_Data.tsv | wc -l) / 2 -0.5 | bc -l ` # 952 655
+- Number of unique comparisons: `echo $(cat Parsed_Ancient_Data.tsv | cut -f 1,4 | sort -u | wc -l) / 2-0.5 | bc -l ` # 705 555
+- Number of individuals: `echo $(cat Parsed_Ancient_Data.tsv | cut -f 1 | sort -u | wc -l) -1 | bc -l ` # 4104
+- Average number of comparisons:  `echo 705555/4104 | bc -l ` # 171.9
+- Number of individuals with "Unknown" origin: `cat Parsed_Ancient_Data.tsv | cut -f 1,2 | grep "Unknown" | sort -u | wc -l ` # 10
 
 
 # 2. Generate circos plot in R
