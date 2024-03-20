@@ -1,5 +1,5 @@
 
-" This script loads the parsed data file and visualises different types of plots using an R Shiny interface.
+"This script loads the parsed data file and visualises different types of plots using an R Shiny interface.
 Three main functions are used: 
   circos_plotter_all - plots all connections between all individuals or populations, highlights the connections associated with selected individuals or populations
   circos_plotter - takes a main individual or population of interest and plots the connections to chromosomes for a number of selected individuals or populations. 
@@ -10,7 +10,7 @@ The server observes input from the user and updates the seleections and graphs a
 
 
 Author: Lovisa Lindquist
-Date: 2024-03-19
+Date: 2024-03-20
 "
 
 ########################################################################################################################3
