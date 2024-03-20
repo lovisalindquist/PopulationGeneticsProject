@@ -1,12 +1,12 @@
 
-# Project Title: Circos Plot Application based on IBD data of ancient individuals
+# Project Title: CIRCibd - An R Shiny application for circular visualisztion of connections between ancient individuals using identity-by-descent (IBD)
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-03-16
+Date: 2024-03-20
 
 # Project Description: 
-In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals using circos plots in several different ways, For example, one can visualise all connections at individual-individual or population-population level, and highlight the connections of interest. Further, one can select an individual or a population, and compare it to one or more individuals or populations, showing both IBD distances and chromosome distribution of these.
+In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals or populations using circos plots in several different ways, For example, one can visualise all connections at individual-individual or population-population level, and highlight the connections of interest. Further, one can select an individual or a population, and compare it to one or more individuals or populations, showing both IBD distances and chromosome distribution of these.
 
 The main input file (ibd220.ibd.v54.1.pub.tsv) is a tab separated table, with the following columns:
 
@@ -21,8 +21,8 @@ The main input file (ibd220.ibd.v54.1.pub.tsv) is a tab separated table, with th
     iid2: ID of individual 2
     SNPdens: Density of SNPs, calculated by the total length / centiMorgans
 
-An additional file (AADR_Annotation.xlsx) containing the IDs and their associated geographic origin will be used for the parsing. The file contains cryptic columns that interfere with data extraction by column names or indices, thus,
-create a new file with only the three columns of relevance: "Genetic ID", "Political entity", and "Age", saved as a .csv file named "AADR_Short.csv"
+An additional file (AADR_Annotation.xlsx) containing the IDs and their associated geographic origin will be used for the parsing. The file contains cryptic columns that interfere with data extraction by column names or indices. Before you start, 
+create a new file with only the three columns of relevance: "Genetic ID", "Political entity", and "Age", saved as a .csv file named "AADR_Short.csv", or download the file at: https://github.com/lovisalindquist/PopulationGeneticsProject.git
 
 The procedure involves the following steps:
 
@@ -34,8 +34,7 @@ The procedure involves the following steps:
     2. Generation of circos plot functions in R
         2.1 Import packages and data
         2.2 Generate subdataframes depending on individuals/groups of interest
-        2.3 Create matrix for plotting from subdataframe 
-        2.4 Generate plot using circlize::chordDiagram
+        2.3 Return matrix or dataframe of relevant data for plotting/tabulation in next step
 
     3. Development of application using R Shiny
         3.1 Define user interface function
@@ -43,20 +42,23 @@ The procedure involves the following steps:
             3.1.2 Generate main panel
         3.2 Define server function
             3.2.1 Identify and update interactive options
-            3.2.2 Plot chordDiagram using function described above
-            3.2.3 Generate summary statistics table
+            3.2.2 Plot circos plot using circlize::chordDiagram with data returned form functions
+            3.2.3 Generate summary statistics table with data returned form functions
             3.2.4 Generate detailed statistics table as drop down from summary table
 
 # Input files
-The data used to produce the application can be downloaded at:
+The data used to produce the application can be downloaded in full format (108 Mb) at:
 https://zenodo.org/records/8417049 
-or
+
+or in zipped format at:
 https://github.com/lovisalindquist/PopulationGeneticsProject.git
 
-Group reference file downloaded at:
-https://reich.hms.harvard.edu/allen-ancient-dna-resource-aadr-downloadable-genotypes-present-day-and-ancient-dna-data
-or 
+Group reference files can be downloaded in zipped format at:
 https://github.com/lovisalindquist/PopulationGeneticsProject.git
+
+To access fles, use:
+unzip Input.zip
+unzip Output.zip
 
 # File tree
 
@@ -90,10 +92,9 @@ Packages:
 - reactable v0.4.4
 - shinybusy v0.3.3
 
-
 # 1. Transform dataset using Python
 
-In order to facilitate the downstream analysis in R, and to include data on demographic origin, the input data file is transformed using the python script IBD_transform.py. The script takes two input files, and requires a specified output file. 
+In order to facilitate the downstream analysis in R, and to include data on demographic origin/age, the input data file is transformed using the python script Transform_IBD_File.py. The script takes two input files, and requires a specified output file. 
 
 It specifically looks for the header names in teh first input file:
     'iid1' - represnting the first individual in the comparison
@@ -103,10 +104,10 @@ It specifically looks for the header names in teh first input file:
     'Start' - representing start position of segment (bp)
     'End' - representing end position of segment (bp)
 
-If these column names are not present in thefile, the script terminates with an error message. 
-To solve this, either change the column names accordingly, modify the python scirpt to search for the column names specified in the file. 
+If these column names are not present in the file, the script terminates with an error message. 
+To solve this, either change the column names accordingly, or modify the python script to search for the column names specified in the file. 
 
-The data is parsed with the short data on the demographic origin, named AADR_short-csv (see above)
+The data is parsed with the short data on the demographic origin and age, named AADR_Short.csv (see above)
 
 In IBD_Project/Data/:
 `python ../Scripts/Transform_IBD_File.py Input/ibd220.ibd.v54.1.pub.tsv Input/AADR_Short.csv Output/Parsed_Ancient_data.tsv`
@@ -125,8 +126,8 @@ In IBD_Project/Data/Output:
 
 
 # 2. Generate circos plot in R
-In IBD_Project/Scripts/:
-`Rscript CircosPlotterApp.R` 
+In IBD_Project/:
+`Rscript Scripts/CircosPlotterApp.R` 
 
 Copy and Paste the resulting link into a web browser (unless using RStudio)
 
