@@ -1,9 +1,9 @@
 
-# Project Title: CIRCibd - An R Shiny application for circular visualisztion of connections between ancient individuals using identity-by-descent (IBD)
+# Project Title: CIRCibd - An R Shiny application for circular visualization of connections between ancient individuals using identity-by-descent (IBD)
 
 Author: Lovisa Lindquist
 Email: lo3303li-s@student.lu.se
-Date: 2024-03-20
+Date: 2024-03-22
 
 # Project Description: 
 In this project, we develop an application that takes an input file with IBD distances for pairwise comparisons of ancient individuals, and plots relationships between individiduals or populations using circos plots in several different ways, For example, one can visualise all connections at individual-individual or population-population level, and highlight the connections of interest. Further, one can select an individual or a population, and compare it to one or more individuals or populations, showing both IBD distances and chromosome distribution of these.
@@ -21,7 +21,7 @@ The main input file (ibd220.ibd.v54.1.pub.tsv) is a tab separated table, with th
     iid2: ID of individual 2
     SNPdens: Density of SNPs, calculated by the total length / centiMorgans
 
-An additional file (AADR_Annotation.xlsx) containing the IDs and their associated geographic origin will be used for the parsing. The file contains cryptic columns that interfere with data extraction by column names or indices. Before you start, 
+An additional file (AADR_Annotation.xlsx) containing the IDs and their associated geographic origin will be used for the parsing. The file contains cryptic columns that interfere with data extraction by column names or indices. Before starting, 
 create a new file with only the three columns of relevance: "Genetic ID", "Political entity", and "Age", saved as a .csv file named "AADR_Short.csv", or download the file at: https://github.com/lovisalindquist/PopulationGeneticsProject.git
 
 The procedure involves the following steps:
@@ -47,7 +47,7 @@ The procedure involves the following steps:
             3.2.4 Generate detailed statistics table as drop down from summary table
 
 # Input files
-The data used to produce the application can be downloaded in full format (108 Mb) at:
+The data used to produce the application can be downloaded at:
 https://zenodo.org/records/8417049 
 
 or in zipped format at:
@@ -96,7 +96,7 @@ Packages:
 
 In order to facilitate the downstream analysis in R, and to include data on demographic origin/age, the input data file is transformed using the python script Transform_IBD_File.py. The script takes two input files, and requires a specified output file. 
 
-It specifically looks for the header names in teh first input file:
+It specifically looks for the header names in the first input file:
     'iid1' - represnting the first individual in the comparison
     'iid2' - representing teh second individual in the comparison
     'ch' - representing the chromosome
@@ -104,8 +104,7 @@ It specifically looks for the header names in teh first input file:
     'Start' - representing start position of segment (bp)
     'End' - representing end position of segment (bp)
 
-If these column names are not present in the file, the script terminates with an error message. 
-To solve this, either change the column names accordingly, or modify the python script to search for the column names specified in the file. 
+If applying CIRCibd on a different data set and these column names are not present in the file, the script terminates with an error message. To solve this, either change the column names accordingly, or modify the python script to search for the column names specified in the file. 
 
 The data is parsed with the short data on the demographic origin and age, named AADR_Short.csv (see above)
 
