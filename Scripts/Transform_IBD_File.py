@@ -127,6 +127,8 @@ except FileNotFoundError:
     sys.exit()
 except NameError:
     print("Incorrect file input. Make sure both input files are specified and structured according to instructions.")
-
-
+    sys.exit()
+except UnicodeDecodeError:
+    print("Did you use the correct annotation file? Tip: use AADR_Short.csv")
+    sys.exit()
 

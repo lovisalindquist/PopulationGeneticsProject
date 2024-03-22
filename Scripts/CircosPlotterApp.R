@@ -1,8 +1,8 @@
 
 "This script loads the parsed data file and visualises different types of plots using an R Shiny interface.
 Three main functions are used: 
-  circos_plotter_all - plots all connections between all individuals or populations, highlights the connections associated with selected individuals or populations
-  circos_plotter - takes a main individual or population of interest and plots the connections to chromosomes for a number of selected individuals or populations. 
+  circos_plotter_set1 - plots all connections between all individuals or populations, highlights the connections associated with selected individuals or populations
+  circos_plotter_set2 - takes a main individual or population of interest and plots the connections to chromosomes for a number of selected individuals or populations. 
   circos_table - generates and formats data for output in tabular form
   
 The application is developed using R shiny. The function defining the user interface contains several tabs, graphs and tables that are updated in the server. 
@@ -10,7 +10,7 @@ The server observes input from the user and updates the seleections and graphs a
 
 
 Author: Lovisa Lindquist
-Date: 2024-03-20
+Date: 2024-03-21
 "
 
 ########################################################################################################################3
@@ -41,7 +41,7 @@ for (pop in 1:length(dat$ID1_Group)) {
 }
 #define a function that prepares data for plotting all connections at once
 
-circos_plotter_all <- function(input_data, selection, level) {
+circos_plotter_set1 <- function(input_data, selection, level) {
   #define variables to hold information of interest
   ID1 <-c()
   ID2 <-c()
@@ -81,7 +81,7 @@ circos_plotter_all <- function(input_data, selection, level) {
 }
 
 #define a function that prepares data for plotting connections between a subject of interest and subjects of comparison
-circos_plotter <- function(input_data, subject, comparison, level) { 
+circos_plotter_set2 <- function(input_data, subject, comparison, level) { 
   
   finaldata <- data.frame() #holds data following extraction of relevant rows based on subject, comparison
   score <- c()
@@ -227,7 +227,7 @@ ui <- fluidPage(
   titlePanel("IBD Circos Plotter of ancient individuals and populations"), # create a title of application
   
   sidebarLayout(position = "left",
-                # create widget panel with three different types of options (plot type, level, reference and comparison used as input in circos_plotter or circos_plotter_all)
+                # create widget panel with three different types of options (plot type, level, reference and comparison used as input in circos_plotter_set1 or circos_plotter_set2)
                 sidebarPanel("",
                              width = 3,
                              
@@ -241,13 +241,8 @@ ui <- fluidPage(
                           h4(paste("Welcome to CIRCibd!")),
                           add_loading_state(selector = ".shiny-plot-output", spinner = "circle"),
                           tabsetPanel(id = "tabs",
-                                      tabPanel("All at once", plotOutput("circos_1", height = "400px")),
-                                      tabPanel("One to many", plotOutput("circos_2", height = "400px"), reactableOutput("summary_data")))
-                          
-                          
-                )
-                
-  ))
+                                      tabPanel("All at once", plotOutput("circos_1", height = "800px", width = "800px")),
+                                      tabPanel("One to many", plotOutput("circos_2", height = "800px"), reactableOutput("summary_data"))))))
 
 
 # create function for server function
@@ -264,7 +259,7 @@ server <- function(input, output, session) {
                
                if (input$plot == "All at once" & input$level == "Population-Population" & length(input$comparison) > 0) {
                output$circos_1 <- renderPlot({  
-               finaldata <- circos_plotter_all(dat, input$comparison, input$level)
+               finaldata <- circos_plotter_set1(dat, input$comparison, input$level)
                
                circos.clear()
                circos.par(gap.degree = 0.1)
@@ -281,7 +276,7 @@ server <- function(input, output, session) {
                
                else if (input$plot == "All at once" & input$level == "Individual-Individual" & length(input$comparison) > 0) {
                  output$circos_1 <- renderPlot({  
-                  finaldata <- circos_plotter_all(dat, input$comparison, input$level) 
+                  finaldata <- circos_plotter_set1(dat, input$comparison, input$level) 
                    circos.clear()
                    circos.par(gap.degree = 0.1)
                    chordDiagram(finaldata, grid.col="grey", preAllocateTracks = 0.5, symmetric = F, col = finaldata$color, annotationTrack = "grid") 
@@ -300,7 +295,7 @@ server <- function(input, output, session) {
                   validate(
                     need(input$comparison, "Oops! Look like you have not selected an individual of comparison yet!")
                   )
-                res <- circos_plotter(dat, subject = input$reference, comparison = input$comparison, level = input$level)
+                res <- circos_plotter_set2(dat, subject = input$reference, comparison = input$comparison, level = input$level)
                 circos.clear() #make sure old graphs are cleared
                 # call chord diagram function, all grids specified as grey, colors based on previously generated matrix
                 chordDiagram(res$mat, grid.col="grey", preAllocateTracks = 0.5, col = res$col_mat)  
@@ -326,7 +321,7 @@ server <- function(input, output, session) {
                    validate(
                      need(input$comparison, "Oops! Look like you have not selected a population of comparison yet!")
                    )
-                   res <- circos_plotter(dat, subject = input$reference, comparison = input$comparison, level = input$level)
+                   res <- circos_plotter_set2(dat, subject = input$reference, comparison = input$comparison, level = input$level)
                    circos.clear() #make sure old graphs are cleared
                    # call chord diagram function, all grids specified as grey, colors based on previously generated matrix
                    chordDiagram(res$mat, grid.col="grey", preAllocateTracks = 0.5, col = res$col_mat)  
@@ -352,7 +347,7 @@ server <- function(input, output, session) {
                    validate(
                      need(input$comparison, "Oops! Look like you have not selected a population of comparison yet!")
                    )
-                   res <- circos_plotter(dat, subject = input$reference, comparison = input$comparison, level = input$level)
+                   res <- circos_plotter_set2(dat, subject = input$reference, comparison = input$comparison, level = input$level)
                    
                    circos.clear() #make sure old graphs are cleared
                    # call chord diagram function, all grids specified as grey, colors based on previously generated matrix
